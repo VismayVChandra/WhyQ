@@ -24,6 +24,45 @@ interface MockEntry {
 const IMG = (seed: string) =>
   `https://api.dicebear.com/7.x/shapes/svg?seed=${encodeURIComponent(seed)}&backgroundType=gradientLinear`;
 
+/**
+ * Real product photos from Open Food Facts (openfoodfacts.org — free,
+ * community-run, open database, no API key required), fetched once offline
+ * via a one-time script and hand-baked in here as static URLs. NOT fetched
+ * live at request time: their legacy anonymous search endpoint rate-limits
+ * hard and unpredictably (confirmed while building this — roughly half of
+ * a paced, polite batch of requests still got HTTP 503), so calling it from
+ * a deployed app on every visitor's search would be both unreliable and a
+ * bad way to use their free service. Only covers products a real match was
+ * found for; everything else falls back to the DiceBear placeholder shape
+ * via `productImage` below. Prices/availability/ETAs are still entirely
+ * synthetic mock data — only the photo is real.
+ */
+const REAL_IMAGES: Partial<Record<string, string>> = {
+  maggi: "https://images.openfoodfacts.org/images/products/890/105/800/0306/front_en.10.200.jpg",
+  "toor-dal": "https://images.openfoodfacts.org/images/products/890/404/392/6216/front_en.5.200.jpg",
+  "rice-1kg": "https://images.openfoodfacts.org/images/products/069/022/510/1103/front_en.9.200.jpg",
+  sugar: "https://images.openfoodfacts.org/images/products/890/602/690/0022/front_en.4.200.jpg",
+  salt: "https://images.openfoodfacts.org/images/products/890/404/390/1015/front_en.34.200.jpg",
+  "oil-1l": "https://images.openfoodfacts.org/images/products/890/600/728/0242/front_en.18.200.jpg",
+  coffee: "https://images.openfoodfacts.org/images/products/611/101/890/3185/front_ar.19.200.jpg",
+  butter: "https://images.openfoodfacts.org/images/products/890/126/201/0016/front_en.53.200.jpg",
+  cheese: "https://images.openfoodfacts.org/images/products/890/126/202/0015/front_en.17.200.jpg",
+  paneer: "https://images.openfoodfacts.org/images/products/890/126/218/0115/front_en.6.200.jpg",
+  juice: "https://images.openfoodfacts.org/images/products/890/188/804/0350/front_en.45.200.jpg",
+  chocolate: "https://images.openfoodfacts.org/images/products/762/220/233/4009/front_en.9.200.jpg",
+  icecream: "https://images.openfoodfacts.org/images/products/890/126/217/3490/front_en.3.200.jpg",
+  water: "https://images.openfoodfacts.org/images/products/890/601/729/0064/front_en.3.200.jpg",
+  ketchup: "https://images.openfoodfacts.org/images/products/890/103/092/1667/front_en.39.200.jpg",
+  jam: "https://images.openfoodfacts.org/images/products/890/103/083/1690/front_en.32.200.jpg",
+  honey: "https://images.openfoodfacts.org/images/products/890/120/702/5365/front_en.14.200.jpg",
+  cornflakes: "https://images.openfoodfacts.org/images/products/315/947/000/0120/front_en.147.200.jpg",
+  masala: "https://images.openfoodfacts.org/images/products/890/216/700/0782/front_en.4.200.jpg",
+};
+
+function productImage(id: string): string {
+  return REAL_IMAGES[id] ?? IMG(id);
+}
+
 export const MOCK_CATALOG: MockEntry[] = [
   // --- Milk (Amul Taaza 1L) ---
   { keywords: ["milk", "amul", "taaza"], platform: "blinkit", platformProductId: "bk-milk-1", rawName: "Amul Taaza Toned Milk 1 L", brand: "Amul", quantityText: "1 L", price: 68, mrp: 70, imageUrl: IMG("amul-milk"), availability: true, deliveryEtaMinutes: 10 },
@@ -35,12 +74,12 @@ export const MOCK_CATALOG: MockEntry[] = [
   { keywords: ["milk", "amul", "taaza"], platform: "zepto", platformProductId: "zp-milk-2", rawName: "Amul Taaza Milk 500ml", brand: "Amul", quantityText: "500ml", price: 35, mrp: 37, imageUrl: IMG("amul-milk-500"), availability: false, deliveryEtaMinutes: 9 },
 
   // --- Maggi 70g ---
-  { keywords: ["maggi", "noodles"], platform: "blinkit", platformProductId: "bk-maggi-1", rawName: "Maggi 2-Minute Masala Noodles 70g", brand: "Maggi", quantityText: "70g", price: 14, mrp: 14, imageUrl: IMG("maggi"), availability: true, deliveryEtaMinutes: 11 },
-  { keywords: ["maggi", "noodles"], platform: "zepto", platformProductId: "zp-maggi-1", rawName: "Maggi Masala Noodles 70 g", brand: "Maggi", quantityText: "70 g", price: 14, mrp: 14, imageUrl: IMG("maggi"), availability: true, deliveryEtaMinutes: 8 },
-  { keywords: ["maggi", "noodles"], platform: "instamart", platformProductId: "im-maggi-1", rawName: "Nestle Maggi 2 Min Noodles Masala 70 gm", brand: "Nestle Maggi", quantityText: "70gm", price: 13, mrp: 14, imageUrl: IMG("maggi"), availability: true, deliveryEtaMinutes: 13 },
-  { keywords: ["maggi", "noodles"], platform: "bigbasket", platformProductId: "bb-maggi-1", rawName: "Maggi 2 Minute Noodles - Masala, 70 g Pouch", brand: "Maggi", quantityText: "70 g", price: 14, mrp: 14, imageUrl: IMG("maggi"), availability: true, deliveryEtaMinutes: 30 },
+  { keywords: ["maggi", "noodles"], platform: "blinkit", platformProductId: "bk-maggi-1", rawName: "Maggi 2-Minute Masala Noodles 70g", brand: "Maggi", quantityText: "70g", price: 14, mrp: 14, imageUrl: productImage("maggi"), availability: true, deliveryEtaMinutes: 11 },
+  { keywords: ["maggi", "noodles"], platform: "zepto", platformProductId: "zp-maggi-1", rawName: "Maggi Masala Noodles 70 g", brand: "Maggi", quantityText: "70 g", price: 14, mrp: 14, imageUrl: productImage("maggi"), availability: true, deliveryEtaMinutes: 8 },
+  { keywords: ["maggi", "noodles"], platform: "instamart", platformProductId: "im-maggi-1", rawName: "Nestle Maggi 2 Min Noodles Masala 70 gm", brand: "Nestle Maggi", quantityText: "70gm", price: 13, mrp: 14, imageUrl: productImage("maggi"), availability: true, deliveryEtaMinutes: 13 },
+  { keywords: ["maggi", "noodles"], platform: "bigbasket", platformProductId: "bb-maggi-1", rawName: "Maggi 2 Minute Noodles - Masala, 70 g Pouch", brand: "Maggi", quantityText: "70 g", price: 14, mrp: 14, imageUrl: productImage("maggi"), availability: true, deliveryEtaMinutes: 30 },
   // Maggi 4-pack (280g) — different pack size, must stay separate
-  { keywords: ["maggi", "noodles"], platform: "zepto", platformProductId: "zp-maggi-4pack", rawName: "Maggi Masala Noodles 4 x 70 g (280 g)", brand: "Maggi", quantityText: "280 g", price: 56, mrp: 60, imageUrl: IMG("maggi-4pack"), availability: true, deliveryEtaMinutes: 8 },
+  { keywords: ["maggi", "noodles"], platform: "zepto", platformProductId: "zp-maggi-4pack", rawName: "Maggi Masala Noodles 4 x 70 g (280 g)", brand: "Maggi", quantityText: "280 g", price: 56, mrp: 60, imageUrl: productImage("maggi"), availability: true, deliveryEtaMinutes: 8 },
 
   // --- Coca-Cola 750ml ---
   { keywords: ["coke", "coca-cola", "cola"], platform: "blinkit", platformProductId: "bk-coke-750", rawName: "Coca-Cola Soft Drink 750 ml", brand: "Coca-Cola", quantityText: "750 ml", price: 40, mrp: 45, imageUrl: IMG("coke"), availability: true, deliveryEtaMinutes: 10 },
@@ -207,7 +246,7 @@ function buildSeedEntries(seed: Seed, seedIndex: number): MockEntry[] {
       quantityText: qtyText,
       price,
       mrp,
-      imageUrl: IMG(seed.id),
+      imageUrl: productImage(seed.id),
       availability,
       deliveryEtaMinutes: PLATFORM_ETA[platform] + (seedIndex % 3),
     };
